@@ -39,6 +39,15 @@ function NavBar() {
                 <li><a onClick={() => scrollToSection('me')} style={{cursor: 'pointer'}}>Me</a></li>
                 <li><a onClick={() => scrollToSection('projects')} style={{cursor: 'pointer'}}>Project Experience</a></li>
                 <li><a onClick={() => scrollToSection('certifications')} style={{cursor: 'pointer'}}>Certifications</a></li>
+                <li><a onClick={() => navigate('/blog')} style={{cursor: 'pointer'}}>Blog</a></li>
+                <li>
+                  <details>
+                    <summary>More</summary>
+                    <ul className="bg-base-100 rounded-t-none p-2">
+                      <li><a onClick={() => navigate('/admin')}>Admin</a></li>
+                    </ul>
+                  </details>
+                </li>
                 <li><ThemeController /></li>
 
             </ul>

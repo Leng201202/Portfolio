@@ -22,7 +22,8 @@ function Card({ project }) {
         <div className="card-body">
             <h2 className="card-title group-hover:text-primary transition-colors">
               {project.title}
-              {project.isNew && <div className="badge badge-secondary">NEW</div>}
+              {project.status === "NEW" && <div className="badge badge-secondary">NEW</div>}
+              {project.status === "UPCOMING" && <div className="badge badge-info">UPCOMING</div>}
             </h2>
             <p className="text-base-content/70 line-clamp-2">{project.description}</p>
             <div className="card-actions justify-end mt-2">

@@ -15,7 +15,7 @@ function ProjectDetailsPage() {
       description: "A full-stack e-commerce platform with React, Node.js, and PostgreSQL featuring user authentication, product management, and payment integration.",
       image: "/projects/ecommerce.jpg",
       tags: ["React", "Node.js", "PostgreSQL"],
-      isNew: true,
+      status: "NEW",
       github: "https://github.com/yourusername/ecommerce",
       demo: "https://ecommerce-demo.com",
       technologies: ["React", "Node.js", "Express", "PostgreSQL", "Stripe", "TailwindCSS"],
@@ -35,7 +35,7 @@ function ProjectDetailsPage() {
       description: "A collaborative task management application with real-time updates, team collaboration features, and project tracking.",
       image: "/projects/taskmanager.jpg",
       tags: ["React", "Firebase", "Redux"],
-      isNew: true,
+      status: "UPCOMING",
       github: "https://github.com/yourusername/task-manager",
       demo: "https://taskmanager-demo.com",
       technologies: ["React", "Firebase", "Redux", "Material-UI"],
@@ -55,7 +55,7 @@ function ProjectDetailsPage() {
       description: "A modern weather dashboard displaying current conditions, forecasts, and weather maps using external APIs.",
       image: "/projects/weather.jpg",
       tags: ["React", "API", "Charts"],
-      isNew: false,
+      status: "COMPLETED",
       github: "https://github.com/yourusername/weather-dashboard",
       demo: "https://weather-demo.com",
       technologies: ["React", "OpenWeather API", "Chart.js", "TailwindCSS"],
@@ -75,7 +75,7 @@ function ProjectDetailsPage() {
       description: "A full-featured blog platform with markdown support, comments, and user profiles built with Next.js.",
       image: "/projects/blog.jpg",
       tags: ["Next.js", "MongoDB", "MDX"],
-      isNew: false,
+      status: "COMPLETED",
       github: "https://github.com/yourusername/blog-platform",
       demo: "https://blog-demo.com",
       technologies: ["Next.js", "MongoDB", "NextAuth", "MDX", "TailwindCSS"],
@@ -95,7 +95,7 @@ function ProjectDetailsPage() {
       description: "Analytics dashboard for social media metrics with data visualization and reporting features.",
       image: "/projects/dashboard.jpg",
       tags: ["React", "D3.js", "Analytics"],
-      isNew: false,
+      status: "COMPLETED",
       github: "https://github.com/yourusername/social-dashboard",
       demo: "https://dashboard-demo.com",
       technologies: ["React", "D3.js", "Node.js", "MongoDB"],
@@ -115,7 +115,7 @@ function ProjectDetailsPage() {
       description: "Mobile-responsive fitness tracking application with workout logging, progress tracking, and goal setting.",
       image: "/projects/fitness.jpg",
       tags: ["React Native", "Mobile", "Health"],
-      isNew: false,
+      status: "COMPLETED",
       github: "https://github.com/yourusername/fitness-tracker",
       demo: "https://fitness-demo.com",
       technologies: ["React Native", "Firebase", "Charts", "Expo"],
@@ -182,8 +182,11 @@ function ProjectDetailsPage() {
                         {tag}
                       </span>
                     ))}
-                    {project.isNew && (
+                    {project.status === "NEW" && (
                       <span className="badge badge-secondary">NEW</span>
+                    )}
+                    {project.status === "UPCOMING" && (
+                      <span className="badge badge-info">UPCOMING</span>
                     )}
                   </div>
                 </div>

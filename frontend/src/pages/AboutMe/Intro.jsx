@@ -1,6 +1,9 @@
-import React from 'react'
+import React from 'react';
+import usePortfolioStore from '../../store/usePortfolioStore';
 
 function Intro({ profileData }) {
+  const introData = usePortfolioStore((state) => state.introSection);
+
   // Default profile data - can be overridden by passing profileData prop
   const defaultData = {
     greeting: "Hello, I'm",
@@ -10,6 +13,9 @@ function Intro({ profileData }) {
     image: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
     imageAlt: "Profile",
     availableForWork: true,
+    ctaText: "Contact Me",
+    ctaLink: "mailto:your@email.com",
+    resumeUrl: "",
     socialLinks: {
       github: "#",
       linkedin: "#",
@@ -17,7 +23,20 @@ function Intro({ profileData }) {
     }
   };
 
-  const profile = profileData || defaultData;
+  // Merge Zustand data with defaults
+  const profile = {
+    greeting: introData.greeting || defaultData.greeting,
+    name: introData.name || defaultData.name,
+    title: introData.tagline || defaultData.title,
+    description: introData.description || defaultData.description,
+    image: introData.profileImage || defaultData.image,
+    imageAlt: "Profile",
+    availableForWork: defaultData.availableForWork,
+    ctaText: introData.ctaText || defaultData.ctaText,
+    ctaLink: introData.ctaLink || defaultData.ctaLink,
+    resumeUrl: introData.resumeUrl || defaultData.resumeUrl,
+    socialLinks: defaultData.socialLinks
+  };
 
   return (
     <div className="min-h-screen bg-base-200 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -40,15 +59,17 @@ function Intro({ profileData }) {
             </p>
 
             <div className="flex gap-4 pt-4">
-              <button className="btn btn-primary btn-lg">
+              <a href={profile.ctaLink} className="btn btn-primary btn-lg">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
-                Contact Me
-              </button>
-              <button className="btn btn-outline btn-lg">
-                Download CV
-              </button>
+                {profile.ctaText}
+              </a>
+              {profile.resumeUrl && (
+                <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline btn-lg">
+                  Download CV
+                </a>
+              )}
             </div>
 
             {/* Social Links */}

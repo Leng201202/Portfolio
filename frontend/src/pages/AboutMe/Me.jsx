@@ -1,6 +1,46 @@
 import React from 'react'
 
-function Me({ educationData, sectionTitle, sectionSubtitle, sectionDescription, highlightLabel }) {
+function Me({ 
+  aboutMeData,
+  educationData, 
+  sectionTitle, 
+  sectionSubtitle, 
+  sectionDescription, 
+  highlightLabel 
+}) {
+  // Default "About Me" data - can be overridden by passing aboutMeData prop
+  const defaultAboutMe = {
+    title: "About Me",
+    introduction: "Hi, I'm a passionate software developer with a love for building innovative web applications and solving complex problems.",
+    paragraphs: [
+      "With several years of experience in full-stack development, I specialize in creating scalable, user-friendly applications using modern technologies like React, Node.js, and cloud platforms. I thrive in collaborative environments and enjoy turning creative ideas into functional solutions.",
+      "Beyond coding, I'm constantly learning and staying up-to-date with the latest industry trends. I believe in writing clean, maintainable code and following best practices to deliver high-quality software that makes a difference.",
+      "When I'm not coding, you can find me contributing to open-source projects, attending tech meetups, or exploring new technologies and frameworks."
+    ],
+    highlights: [
+      {
+        icon: "💻",
+        label: "Full Stack Developer",
+        description: "Experienced in both frontend and backend development"
+      },
+      {
+        icon: "🚀",
+        label: "Problem Solver",
+        description: "Passionate about tackling complex technical challenges"
+      },
+      {
+        icon: "🌱",
+        label: "Continuous Learner",
+        description: "Always exploring new technologies and methodologies"
+      },
+      {
+        icon: "🤝",
+        label: "Team Player",
+        description: "Collaborative mindset with strong communication skills"
+      }
+    ]
+  };
+
   // Default education data - can be overridden by passing educationData prop
   const defaultEducation = [
     {
@@ -27,21 +67,64 @@ function Me({ educationData, sectionTitle, sectionSubtitle, sectionDescription, 
     }
   ];
 
+  const aboutMe = aboutMeData || defaultAboutMe;
   const education = educationData || defaultEducation;
-  const title = sectionTitle || "Education";
-  const subtitle = sectionSubtitle || "My academic background";
-  const description = sectionDescription || "A summary of my educational qualifications and achievements, highlighting key milestones and certifications.";
+  const title = sectionTitle || "About Me & Education";
+  const subtitle = sectionSubtitle || "Get to know me better";
+  const description = sectionDescription || "Learn about my background, journey, and what drives me as a developer.";
   const highlightsLabel = highlightLabel || "Highlights:";
 
   return (
     <div id="me" className="bg-base-200 py-24 px-6">
       <div className="max-w-5xl mx-auto">
         
-        {/* Education Section */}
+        {/* Main Header */}
         <div className="mb-16 text-center">
           <h2 className="text-4xl font-bold mb-3">{title}</h2>
           <p className="text-base-content/60">{subtitle}</p>
           <p className="text-base-content/80 mt-2">{description}</p>
+        </div>
+
+        {/* About Me Section */}
+        <div className="mb-16">
+          <div className="bg-base-100 rounded-lg p-8 shadow-sm mb-8">
+            <h3 className="text-3xl font-bold mb-6">{aboutMe.title}</h3>
+            
+            <p className="text-lg text-base-content/90 mb-6 leading-relaxed">
+              {aboutMe.introduction}
+            </p>
+            
+            <div className="space-y-4">
+              {aboutMe.paragraphs.map((paragraph, index) => (
+                <p key={index} className="text-base-content/80 leading-relaxed">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+
+          {/* Highlights Grid */}
+          <div className="grid md:grid-cols-2 gap-6">
+            {aboutMe.highlights.map((highlight, index) => (
+              <div 
+                key={index}
+                className="bg-base-100 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow duration-300"
+              >
+                <div className="flex items-start gap-4">
+                  <span className="text-4xl">{highlight.icon}</span>
+                  <div>
+                    <h4 className="text-xl font-semibold mb-2">{highlight.label}</h4>
+                    <p className="text-base-content/70">{highlight.description}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Education Section */}
+        <div className="mb-8">
+          <h3 className="text-3xl font-bold mb-8 text-center">Education</h3>
         </div>
 
         <div className="space-y-8">
