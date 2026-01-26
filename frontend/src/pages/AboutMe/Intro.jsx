@@ -4,38 +4,23 @@ import usePortfolioStore from '../../store/usePortfolioStore';
 function Intro({ profileData }) {
   const introData = usePortfolioStore((state) => state.introSection);
 
-  // Default profile data - can be overridden by passing profileData prop
-  const defaultData = {
-    greeting: "Hello, I'm",
-    name: "Your Name",
-    title: "Full Stack Developer",
-    description: "I'm a passionate developer with expertise in building modern web applications. I love creating beautiful, functional, and user-friendly interfaces that solve real-world problems. With a strong foundation in both frontend and backend technologies, I bring ideas to life through clean code and elegant design.",
-    image: "https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp",
-    imageAlt: "Profile",
-    availableForWork: true,
-    ctaText: "Contact Me",
-    ctaLink: "mailto:your@email.com",
-    resumeUrl: "",
-    socialLinks: {
-      github: "#",
-      linkedin: "#",
-      twitter: "#"
-    }
-  };
-
-  // Merge Zustand data with defaults
+  // Use Zustand data directly
   const profile = {
-    greeting: introData.greeting || defaultData.greeting,
-    name: introData.name || defaultData.name,
-    title: introData.tagline || defaultData.title,
-    description: introData.description || defaultData.description,
-    image: introData.profileImage || defaultData.image,
+    greeting: introData.greeting || "Hello, I'm",
+    name: introData.name || "",
+    title: introData.tagline || "",
+    description: introData.description || "",
+    image: introData.profileImage || "",
     imageAlt: "Profile",
-    availableForWork: introData.availableForWork !== undefined ? introData.availableForWork : defaultData.availableForWork,
-    ctaText: introData.ctaText || defaultData.ctaText,
-    ctaLink: introData.ctaLink || defaultData.ctaLink,
-    resumeUrl: introData.resumeUrl || defaultData.resumeUrl,
-    socialLinks: defaultData.socialLinks
+    availableForWork: introData.availableForWork || false,
+    ctaText: introData.ctaText || "Contact Me",
+    ctaLink: introData.ctaLink || "",
+    resumeUrl: introData.resumeUrl || "",
+    socialLinks: {
+      github: "",
+      linkedin: "",
+      twitter: ""
+    }
   };
 
   return (
