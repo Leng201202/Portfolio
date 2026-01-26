@@ -49,16 +49,31 @@ const usePortfolioStore = create(
       updateIntroSection: async (data) => {
         try {
           const existingData = await portfolioAPI.getProfileData();
+          
+          // Map frontend fields to backend schema
+          const backendData = {
+            greeting: data.greeting || 'Hello',
+            name: data.name || 'Your Name',
+            title: data.tagline || 'Developer', // frontend: tagline -> backend: title
+            description: data.description || 'About me',
+            image: data.profileImage || '', // frontend: profileImage -> backend: image
+            imageAlt: 'Profile',
+            availableForWork: data.availableForWork !== undefined ? data.availableForWork : false,
+            githubUrl: data.githubUrl || null,
+            linkedinUrl: data.linkedinUrl || null,
+          };
+          
           let updatedData;
           
           if (existingData && existingData.id) {
             // Update existing record
-            updatedData = await portfolioAPI.updateProfileData(existingData.id, data);
+            updatedData = await portfolioAPI.updateProfileData(existingData.id, backendData);
           } else {
             // Create new record
-            updatedData = await portfolioAPI.createProfileData(data);
+            updatedData = await portfolioAPI.createProfileData(backendData);
           }
           
+          // Update local state with response
           set((state) => ({
             introSection: {
               ...state.introSection,
