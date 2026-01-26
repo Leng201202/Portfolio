@@ -15,6 +15,7 @@ const usePortfolioStore = create(
         resumeUrl: '',
         ctaText: '',
         ctaLink: '',
+        availableForWork: false,
       },
       
       // About Me Section
@@ -59,8 +60,11 @@ const usePortfolioStore = create(
             image: data.profileImage || '', // frontend: profileImage -> backend: image
             imageAlt: 'Profile',
             availableForWork: data.availableForWork !== undefined ? data.availableForWork : false,
-            githubUrl: data.githubUrl || null,
-            linkedinUrl: data.linkedinUrl || null,
+            githubUrl: '', // Social links stored in About Me section
+            linkedinUrl: '', // Social links stored in About Me section
+            resumeUrl: data.resumeUrl || '',
+            ctaText: data.ctaText || '',
+            ctaLink: data.ctaLink || '',
           };
           
           let updatedData;
@@ -83,6 +87,9 @@ const usePortfolioStore = create(
               description: updatedData.description || '',
               profileImage: updatedData.image || '',
               availableForWork: updatedData.availableForWork || false,
+              resumeUrl: updatedData.resumeUrl || '',
+              ctaText: updatedData.ctaText || '',
+              ctaLink: updatedData.ctaLink || '',
             },
           }));
           return updatedData;
@@ -109,6 +116,9 @@ const usePortfolioStore = create(
                 description: profileData.description || '',
                 profileImage: profileData.image || '',
                 availableForWork: profileData.availableForWork || false,
+                resumeUrl: profileData.resumeUrl || '',
+                ctaText: profileData.ctaText || '',
+                ctaLink: profileData.ctaLink || '',
               },
             }));
           }
