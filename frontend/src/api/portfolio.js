@@ -33,7 +33,8 @@ export const portfolioAPI = {
       throw new Error('Failed to fetch profile data');
     }
     
-    return response.json();
+    const text = await response.text();
+    return text ? JSON.parse(text) : null;
   },
 
   updateProfileData: async (id, data) => {
