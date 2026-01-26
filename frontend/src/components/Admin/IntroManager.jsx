@@ -55,10 +55,14 @@ function IntroManager() {
     if (fileInput) fileInput.value = '';
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    updateIntroSection(formData);
-    alert('Intro section updated successfully!');
+    try {
+      await updateIntroSection(formData);
+      alert('Intro section updated successfully!');
+    } catch (error) {
+      alert('Failed to update intro section. Please try again.');
+    }
   };
 
   return (

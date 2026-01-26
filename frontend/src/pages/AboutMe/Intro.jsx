@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import usePortfolioStore from '../../store/usePortfolioStore';
 
 function Intro({ profileData }) {
   const introData = usePortfolioStore((state) => state.introSection);
+  const fetchIntroSection = usePortfolioStore((state) => state.fetchIntroSection);
+
+  // Fetch data from backend on mount
+  useEffect(() => {
+    fetchIntroSection();
+  }, [fetchIntroSection]);
 
   // Use Zustand data directly
   const profile = {

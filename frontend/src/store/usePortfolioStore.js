@@ -46,10 +46,61 @@ const usePortfolioStore = create(
       isAuthenticated: false,
       
       // Actions for Intro Section
-      updateIntroSection: (data) =>
-        set((state) => ({
-          introSection: { ...state.introSection, ...data },
-        })),
+      updateIntroSection: async (data) => {
+        try {
+          const existingData = await portfolioAPI.getProfileData();
+          let updatedData;
+          
+          if (existingData && existingData.id) {
+            // Update existing record
+            updatedData = await portfolioAPI.updateProfileData(existingData.id, data);
+          } else {
+            // Create new record
+            updatedData = await portfolioAPI.createProfileData(data);
+          }
+          
+          set((state) => ({
+            introSection: {
+              ...state.introSection,
+              greeting: updatedData.greeting || '',
+              name: updatedData.name || '',
+              tagline: updatedData.title || '',
+              description: updatedData.description || '',
+              profileImage: updatedData.image || '',
+              availableForWork: updatedData.availableForWork || false,
+            },
+          }));
+          return updatedData;
+        } catch (error) {
+          console.error('Failed to update intro section:', error);
+          // Fallback to local update if API fails
+          set((state) => ({
+            introSection: { ...state.introSection, ...data },
+          }));
+          throw error;
+        }
+      },
+
+      fetchIntroSection: async () => {
+        try {
+          const profileData = await portfolioAPI.getProfileData();
+          if (profileData) {
+            set((state) => ({
+              introSection: {
+                ...state.introSection,
+                greeting: profileData.greeting || '',
+                name: profileData.name || '',
+                tagline: profileData.title || '',
+                description: profileData.description || '',
+                profileImage: profileData.image || '',
+                availableForWork: profileData.availableForWork || false,
+              },
+            }));
+          }
+        } catch (error) {
+          console.error('Failed to fetch intro section:', error);
+        }
+      },
       
       // Actions for About Me
       updateAboutMe: async (data) => {
