@@ -7,14 +7,14 @@ const usePortfolioStore = create(
     (set) => ({
       // Intro Section
       introSection: {
-        greeting: "Hello, I'm",
-        name: 'Your Name',
-        tagline: 'Full Stack Developer',
-        description: "I'm a passionate developer with expertise in building modern web applications. I love creating beautiful, functional, and user-friendly interfaces that solve real-world problems. With a strong foundation in both frontend and backend technologies, I bring ideas to life through clean code and elegant design.",
+        greeting: '',
+        name: '',
+        tagline: '',
+        description: '',
         profileImage: '',
         resumeUrl: '',
-        ctaText: 'Contact Me',
-        ctaLink: 'mailto:your@email.com',
+        ctaText: '',
+        ctaLink: '',
       },
       
       // About Me Section
