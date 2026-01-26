@@ -1,43 +1,49 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { portfolioAPI } from '../../api'
 
-function Skill({ skillsData }) {
-  // Default skills data - can be overridden by passing skillsData prop
-  const defaultSkills = {
-    "Frontend Development": [
-      "React & Redux",
-      "JavaScript (ES6+)",
-      "TypeScript",
-      "HTML5 & CSS3",
-      "Tailwind CSS",
-      "Responsive Design"
-    ],
-    "Backend Development": [
-      "Node.js",
-      "NestJS",
-      "Express.js",
-      "RESTful APIs",
-      "GraphQL",
-      "Microservices"
-    ],
-    "Database": [
-      "PostgreSQL",
-      "MongoDB",
-      "Prisma ORM",
-      "Redis",
-      "Database Design",
-      "SQL & NoSQL"
-    ],
-    "Tools & Others": [
-      "Git & GitHub",
-      "Docker",
-      "CI/CD",
-      "AWS",
-      "Agile Methodology",
-      "Problem Solving"
-    ]
+function Skill() {
+  const [skills, setSkills] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSkills();
+  }, []);
+
+  const fetchSkills = async () => {
+    try {
+      const data = await portfolioAPI.getAllSkills();
+      
+      // Group skills by category
+      const groupedSkills = {};
+      data.forEach(skill => {
+        const categoryName = skill.category?.name || 'Other';
+        if (!groupedSkills[categoryName]) {
+          groupedSkills[categoryName] = [];
+        }
+        groupedSkills[categoryName].push(skill.name);
+      });
+      
+      setSkills(groupedSkills);
+    } catch (error) {
+      console.error('Error fetching skills:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const skills = skillsData || defaultSkills;
+  if (loading) {
+    return (
+      <div className="bg-base-200 py-24 px-6">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="loading loading-spinner loading-lg"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (Object.keys(skills).length === 0) {
+    return null;
+  }
 
   return (
     <div className="bg-base-200 py-24 px-6">

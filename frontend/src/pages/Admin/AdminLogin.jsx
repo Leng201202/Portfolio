@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import usePortfolioStore from '../../store/usePortfolioStore';
 
 function AdminLogin() {
@@ -9,11 +9,15 @@ function AdminLogin() {
   const navigate = useNavigate();
   const login = usePortfolioStore((state) => state.login);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (login(email, password)) {
+    setError('');
+    
+    try {
+      await login(email, password);
       navigate('/admin/dashboard');
-    } else {
+    } catch (error) {
+      console.error('Login error:', error);
       setError('Invalid email or password');
       setPassword('');
     }
@@ -87,6 +91,20 @@ function AdminLogin() {
               </button>
             </div>
           </form>
+
+          <div className="divider my-6">OR</div>
+
+          <div className="text-center mb-4">
+            <p className="text-sm text-base-content/70">
+              Don't have an account?{' '}
+              <Link 
+                to="/admin/register" 
+                className="link link-primary font-semibold hover:link-hover"
+              >
+                Register here
+              </Link>
+            </p>
+          </div>
 
           <div className="divider">Info</div>
           <div className="alert alert-info">

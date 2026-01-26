@@ -1,10 +1,28 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import NavBar from '../../components/utils/NavBar'
 import Footer from '../../components/utils/Footer'
-import usePortfolioStore from '../../store/usePortfolioStore'
+import { portfolioAPI } from '../../api'
 
 export const Blog = () => {
-  const adminBlogPosts = usePortfolioStore((state) => state.blogPosts);
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  const fetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const data = await portfolioAPI.getAllBlogPosts();
+      setBlogPosts(data);
+    } catch (error) {
+      console.error('Failed to fetch blogs:', error);
+      setBlogPosts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
   
   // Helper function to format plain text content into paragraphs
   const formatContent = (text) => {
@@ -51,212 +69,13 @@ export const Blog = () => {
     });
   };
 
-  // Sample blog posts data - you can later fetch this from your backend
-  const defaultBlogPosts = [
-    {
-      id: 1,
-      title: "Getting Started with React and TailwindCSS",
-      excerpt: "Learn how to set up a modern React application with TailwindCSS for beautiful, responsive designs.",
-      content: `React and TailwindCSS make a powerful combination for building modern web applications. In this post, we'll explore how to get started with both technologies.
-
-### Why React?
-
-React is a popular JavaScript library for building user interfaces, especially single-page applications. It allows developers to create reusable UI components.
-
-### Why TailwindCSS?
-
-TailwindCSS is a utility-first CSS framework that provides low-level utility classes to build custom designs without writing custom CSS.
-
-### Setting Up Your Project
-
-To get started, you'll need Node.js installed. Then, create a new React app and install TailwindCSS.
-
-\`\`\`
-npm create vite@latest my-app -- --template react
-cd my-app
-npm install -D tailwindcss postcss autoprefixer
-npx tailwindcss init -p
-\`\`\`
-
-### Key Benefits
-
-- Component-based architecture
-- Virtual DOM for better performance
-- Large ecosystem and community
-- Easy to learn and use
-
-Happy coding!`,
-      author: "Your Name",
-      date: "2026-01-20",
-      readTime: "5 min read",
-      category: "Web Development",
-      tags: ["React", "TailwindCSS", "Frontend"],
-      image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&h=400&fit=crop"
-    },
-    {
-      id: 2,
-      title: "Building RESTful APIs with NestJS",
-      excerpt: "Discover how to create scalable and maintainable backend services using NestJS framework.",
-      content: `NestJS is a progressive Node.js framework for building efficient and scalable server-side applications. Let's dive into creating RESTful APIs.
-
-### What is NestJS?
-
-NestJS is built with TypeScript and combines elements of OOP, FP, and FRP. It provides an architecture that helps developers create highly testable, scalable, and maintainable applications.
-
-### Core Concepts
-
-- Controllers: Handle incoming requests and return responses
-- Providers: Can be injected as dependencies
-- Modules: Organize the application structure
-- Middleware: Process requests before they reach route handlers
-- Guards: Determine whether a request should be handled
-
-### Creating Your First Endpoint
-
-Here's a simple example of a controller:
-
-\`\`\`
-@Controller('users')
-export class UsersController {
-  @Get()
-  findAll() {
-    return 'This action returns all users';
-  }
-  
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
-}
-\`\`\`
-
-### Best Practices
-
-Start with a solid project structure, use dependency injection effectively, and always validate incoming data with DTOs. NestJS makes it easy to build production-ready APIs.`,
-      author: "Your Name",
-      date: "2026-01-15",
-      readTime: "7 min read",
-      category: "Backend",
-      tags: ["NestJS", "Node.js", "API"],
-      image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=400&fit=crop"
-    },
-    {
-      id: 3,
-      title: "Database Design with Prisma ORM",
-      excerpt: "Master database management with Prisma, the next-generation ORM for Node.js and TypeScript.",
-      content: `Prisma is a next-generation ORM that makes database access easy with type safety and auto-completion.
-
-### Why Prisma?
-
-Prisma provides a clean and type-safe way to interact with your database. It supports PostgreSQL, MySQL, SQLite, SQL Server, and MongoDB.
-
-### Key Features
-
-- Type-safe database access
-- Auto-generated and type-safe query builder
-- Declarative data modeling
-- Migration system
-- Introspection capabilities
-
-### Schema Example
-
-\`\`\`
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  posts     Post[]
-  createdAt DateTime @default(now())
-}
-
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  Int
-}
-\`\`\`
-
-### Getting Started
-
-Install Prisma, initialize your schema, and run migrations to get started. The developer experience is exceptional with full TypeScript support and IDE autocomplete.`,
-      author: "Your Name",
-      date: "2026-01-10",
-      readTime: "6 min read",
-      category: "Database",
-      tags: ["Prisma", "Database", "ORM"],
-      image: "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&h=400&fit=crop"
-    },
-    {
-      id: 4,
-      title: "Responsive Design Best Practices",
-      excerpt: "Learn the essential principles of creating responsive web designs that work seamlessly across all devices.",
-      content: `Responsive design is crucial in today's multi-device world. Let's explore best practices for creating truly responsive applications.
-
-### Mobile-First Approach
-
-Start designing for mobile devices first, then scale up to larger screens. This ensures your core content and functionality work on the smallest screens.
-
-### Flexible Layouts
-
-Use flexible grid layouts with percentage-based widths rather than fixed pixel values. CSS Grid and Flexbox are your best friends for creating responsive layouts.
-
-### Media Queries
-
-Leverage media queries to apply different styles based on screen size:
-
-\`\`\`
-@media (min-width: 768px) {
-  .container {
-    max-width: 768px;
-  }
-}
-
-@media (min-width: 1024px) {
-  .container {
-    max-width: 1024px;
-  }
-}
-\`\`\`
-
-### Responsive Images
-
-Use responsive image techniques to serve appropriate image sizes for different devices. Consider using srcset and sizes attributes.
-
-### Testing Across Devices
-
-Always test your designs on real devices, not just browser developer tools. Different devices can behave differently.
-
-### Key Principles
-
-- Use relative units (rem, em, %) instead of pixels
-- Design for touch interfaces
-- Optimize performance for mobile networks
-- Ensure text remains readable at all sizes
-- Make interactive elements large enough for touch
-
-By following these practices, you'll create websites that look great and function well on any device.`,
-      author: "Your Name",
-      date: "2026-01-05",
-      readTime: "4 min read",
-      category: "Design",
-      tags: ["CSS", "Responsive", "Design"],
-      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=400&fit=crop"
-    }
-  ];
-
-  // Use admin blog posts if available, otherwise use default sample data
-  const blogPosts = adminBlogPosts.length > 0 ? adminBlogPosts : defaultBlogPosts;
-
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 6;
 
   // Get unique categories
-  const categories = ["All", ...new Set(blogPosts.map(post => post.category))];
+  const categories = ["All", ...new Set(blogPosts.map(post => post.category).filter(Boolean))];
 
   // Filter posts by category
   const filteredPosts = selectedCategory === "All" 
@@ -380,25 +199,39 @@ By following these practices, you'll create websites that look great and functio
           </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => handleCategoryChange(category)}
-              className={`btn btn-sm ${
-                selectedCategory === category 
-                  ? 'btn-primary' 
-                  : 'btn-outline'
-              }`}
-            >
-              {category}
-            </button>
-          ))}
-        </div>
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        ) : blogPosts.length === 0 ? (
+          <div className="text-center py-20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mx-auto text-base-content/30 mb-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+            </svg>
+            <p className="text-xl text-base-content/60">No blog posts yet.</p>
+            <p className="text-base-content/40 mt-2">Check back later for new content!</p>
+          </div>
+        ) : (
+          <>
+            {/* Category Filter */}
+            <div className="flex flex-wrap justify-center gap-2 mb-8">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => handleCategoryChange(category)}
+                  className={`btn btn-sm ${
+                    selectedCategory === category 
+                      ? 'btn-primary' 
+                      : 'btn-outline'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
 
-        {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {/* Blog Posts Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {currentPosts.map((post) => (
             <div 
               key={post.id} 
@@ -480,12 +313,7 @@ By following these practices, you'll create websites that look great and functio
             </div>
           </div>
         )}
-
-        {/* Empty State */}
-        {filteredPosts.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-lg text-base-content/70">No blog posts found in this category.</p>
-          </div>
+        </>
         )}
       </div>
     </div>
@@ -493,3 +321,4 @@ By following these practices, you'll create websites that look great and functio
     </>
   );
 }
+

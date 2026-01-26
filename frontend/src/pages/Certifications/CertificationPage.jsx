@@ -1,76 +1,52 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { portfolioAPI } from '../../api'
 
 function CertificationPage({ certificationsData }) {
   const navigate = useNavigate();
+  const [certifications, setCertifications] = useState([]);
 
-  // Default certifications data - can be overridden by passing certificationsData prop
-  const defaultCertifications = [
-    {
-      id: 1,
-      title: "AWS Certified Solutions Architect",
-      issuer: "Amazon Web Services",
-      date: "2024",
-      image: "/certificates/aws-cert.png",
-      credentialId: "AWS-12345678",
-      skills: ["Cloud Architecture", "AWS Services", "System Design"],
-      description: "Professional certification demonstrating expertise in designing distributed systems on AWS platform.",
-      verifyLink: "#"
-    },
-    {
-      id: 2,
-      title: "Professional Scrum Master I",
-      issuer: "Scrum.org",
-      date: "2023",
-      image: "/certificates/scrum-cert.png",
-      credentialId: "PSM-87654321",
-      skills: ["Agile", "Scrum", "Team Leadership"],
-      description: "Certification validating understanding of Scrum framework and ability to apply it in real-world scenarios.",
-      verifyLink: "#"
-    },
-    {
-      id: 3,
-      title: "MongoDB Certified Developer",
-      issuer: "MongoDB University",
-      date: "2023",
-      image: "/certificates/mongodb-cert.png",
-      credentialId: "MONGO-11223344",
-      skills: ["MongoDB", "NoSQL", "Database Design"],
-      description: "Certification proving proficiency in MongoDB database development and administration.",
-      verifyLink: "#"
-    },
-    {
-      id: 4,
-      title: "Docker Certified Associate",
-      issuer: "Docker Inc.",
-      date: "2022",
-      image: "/certificates/docker-cert.png",
-      credentialId: "DOCKER-99887766",
-      skills: ["Docker", "Containerization", "DevOps"],
-      description: "Certification demonstrating skills in Docker containerization and orchestration.",
-      verifyLink: "#"
+  useEffect(() => {
+    fetchCertifications();
+  }, []);
+
+  const fetchCertifications = async () => {
+    try {
+      const data = await portfolioAPI.getAllCertifications();
+      setCertifications(data);
+    } catch (error) {
+      console.error('Error fetching certifications:', error);
     }
-  ];
+  };
 
-  const certifications = certificationsData || defaultCertifications;
+  const certificationsList = certificationsData || certifications;
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  };
 
   const viewDetails = (certId) => {
     navigate(`/certifications/${certId}`);
   };
 
+  if (certificationsList.length === 0) {
+    return null;
+  }
+
   return (
-    <div id="certifications" className="bg-base-200 py-24 px-6">
+    <div id="certifications" className="bg-base-200 py-12 sm:py-16 md:py-24 px-4 sm:px-6">
       <div className="max-w-6xl mx-auto">
         
         {/* Header */}
-        <div className="mb-16 text-center">
-          <h2 className="text-4xl font-bold mb-3">Certifications</h2>
-          <p className="text-base-content/60">Professional certifications and achievements</p>
+        <div className="mb-8 sm:mb-12 md:mb-16 text-center">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-3">Certifications</h2>
+          <p className="text-sm sm:text-base text-base-content/60">Professional certifications and achievements</p>
         </div>
 
         {/* Certifications Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {certifications.map((cert) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
+          {certificationsList.map((cert) => (
             <div 
               key={cert.id}
               onClick={() => viewDetails(cert.id)}
@@ -112,23 +88,19 @@ function CertificationPage({ certificationsData }) {
                   {cert.title}
                 </h3>
                 <p className="text-primary text-sm font-medium mb-1">{cert.issuer}</p>
-                <p className="text-base-content/60 text-sm mb-4">{cert.date}</p>
+                <p className="text-base-content/60 text-sm mb-4">{formatDate(cert.date)}</p>
                 
-                <div className="flex flex-wrap gap-2">
-                  {cert.skills?.slice(0, 2).map((skill, idx) => (
-                    <span 
-                      key={idx}
-                      className="badge badge-sm badge-outline"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                  {cert.skills?.length > 2 && (
-                    <span className="badge badge-sm badge-outline">
-                      +{cert.skills.length - 2}
-                    </span>
-                  )}
-                </div>
+                {cert.credentialUrl && (
+                  <a 
+                    href={cert.credentialUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link link-primary text-sm mb-4 inline-block"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    View Credential →
+                  </a>
+                )}
 
                 <div className="mt-4 text-sm text-primary font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
                   View Details

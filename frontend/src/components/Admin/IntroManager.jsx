@@ -200,6 +200,23 @@ function IntroManager() {
               </div>
             </div>
 
+            <div className="divider">Availability Status</div>
+
+            <div className="form-control">
+              <label className="label cursor-pointer justify-start gap-4">
+                <input 
+                  type="checkbox" 
+                  className="toggle toggle-primary" 
+                  checked={formData.availableForWork || false}
+                  onChange={(e) => setFormData({...formData, availableForWork: e.target.checked})}
+                />
+                <div className="flex flex-col">
+                  <span className="label-text font-semibold">Available for Work</span>
+                  <span className="label-text-alt text-base-content/60">Show "Available for Work" badge on your profile</span>
+                </div>
+              </label>
+            </div>
+
             <div className="divider">Call-to-Action Button</div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,10 +262,17 @@ function IntroManager() {
           <h3 className="card-title text-xl mb-4">Preview</h3>
           <div className="bg-base-200 p-8 rounded-lg text-center">
             {formData.profileImage && (
-              <div className="avatar mb-4">
-                <div className="w-24 rounded-full">
-                  <img src={formData.profileImage} alt="Profile" />
+              <div className="relative inline-block mb-4">
+                <div className="avatar">
+                  <div className="w-24 rounded-full">
+                    <img src={formData.profileImage} alt="Profile" />
+                  </div>
                 </div>
+                {formData.availableForWork && (
+                  <div className="absolute -bottom-2 -right-2 badge badge-sm badge-primary shadow-lg">
+                    Available
+                  </div>
+                )}
               </div>
             )}
             <p className="text-lg opacity-70">{formData.greeting || 'Hi, I\'m'}</p>

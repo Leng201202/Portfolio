@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import usePortfolioStore from '../../store/usePortfolioStore';
+import React, { useState, useEffect } from 'react';
+import { portfolioAPI } from '../../api';
 import { uploadToCloudinary, getCloudinaryConfig } from '../../utils/cloudinaryUpload';
 
 function ProjectManager() {
-  const { projects, addProject, updateProject, deleteProject } = usePortfolioStore();
+  const [projects, setProjects] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -11,69 +11,85 @@ function ProjectManager() {
     title: '',
     description: '',
     image: '',
-    tags: '',
-    status: 'COMPLETED',
-    github: '',
-    demo: '',
     technologies: '',
-    features: ''
+    githubUrl: '',
+    liveUrl: ''
   });
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const data = await portfolioAPI.getAllProjects();
+      setProjects(data);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
       title: '',
       description: '',
       image: '',
-      tags: '',
-      status: 'COMPLETED',
-      github: '',
-      demo: '',
       technologies: '',
-      features: ''
+      githubUrl: '',
+      liveUrl: ''
     });
     setIsEditing(false);
     setEditingId(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const projectData = {
-      ...formData,
-      tags: formData.tags.split(',').map(tag => tag.trim()),
-      technologies: formData.technologies.split(',').map(tech => tech.trim()),
-      features: formData.features.split('\n').filter(f => f.trim())
-    };
+    try {
+      const projectData = {
+        ...formData,
+        technologies: formData.technologies.split(',').map(tech => tech.trim()).filter(t => t)
+      };
 
-    if (isEditing) {
-      updateProject(editingId, projectData);
-    } else {
-      addProject(projectData);
+      if (isEditing) {
+        await portfolioAPI.updateProject(editingId, projectData);
+      } else {
+        await portfolioAPI.createProject(projectData);
+      }
+      
+      await fetchProjects();
+      resetForm();
+      alert('Project saved successfully!');
+    } catch (error) {
+      console.error('Error saving project:', error);
+      alert('Failed to save project. Please try again.');
     }
-    
-    resetForm();
   };
 
   const handleEdit = (project) => {
     setFormData({
       title: project.title,
       description: project.description,
-      image: project.image,
-      tags: project.tags?.join(', ') || '',
-      status: project.status || 'COMPLETED',
-      github: project.github || '',
-      demo: project.demo || '',
+      image: project.image || '',
       technologies: project.technologies?.join(', ') || '',
-      features: project.features?.join('\n') || ''
+      githubUrl: project.githubUrl || '',
+      liveUrl: project.liveUrl || ''
     });
     setEditingId(project.id);
     setIsEditing(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this project?')) {
-      deleteProject(id);
+      try {
+        await portfolioAPI.deleteProject(id);
+        await fetchProjects();
+        alert('Project deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        alert('Failed to delete project. Please try again.');
+      }
     }
   };
 
@@ -116,120 +132,74 @@ function ProjectManager() {
           </h2>
           
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="form-control gap-2">
+              <label className="label mb-2">
+                <span className="label-text font-semibold">Title *</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered focus:input-primary transition-all duration-200"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                placeholder="Enter project title"
+                required
+              />
+            </div>
+
+            <div className="form-control gap-2">
+              <label className="label mb-2">
+                <span className="label-text font-semibold text-sm">Description *</span>
+              </label>
+              <textarea
+                className="textarea textarea-bordered focus:textarea-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200 leading-relaxed"
+                rows="3"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                placeholder="Brief description of your project..."
+                required
+              />
+            </div>
+
+            <div className="form-control gap-2">
+              <label className="label mb-2">
+                <span className="label-text font-semibold text-sm">Technologies (comma-separated)</span>
+              </label>
+              <input
+                type="text"
+                className="input input-bordered focus:input-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
+                value={formData.technologies}
+                onChange={(e) => setFormData({...formData, technologies: e.target.value})}
+                placeholder="React, Express, MongoDB"
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="form-control gap-2">
                 <label className="label mb-2">
-                  <span className="label-text font-semibold">Title *</span>
+                  <span className="label-text font-semibold text-sm">GitHub URL</span>
                 </label>
                 <input
-                  type="text"
-                  className="input input-bordered focus:input-primary transition-all duration-200"
-                  value={formData.title}
-                  onChange={(e) => setFormData({...formData, title: e.target.value})}
-                  placeholder="Enter project title"
-                  required
+                  type="url"
+                  className="input input-bordered focus:input-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
+                  value={formData.githubUrl}
+                  onChange={(e) => setFormData({...formData, githubUrl: e.target.value})}
+                  placeholder="https://github.com/username/repo"
                 />
               </div>
 
               <div className="form-control gap-2">
                 <label className="label mb-2">
-                  <span className="label-text font-semibold text-sm">Status</span>
+                  <span className="label-text font-semibold text-sm">Live Demo URL</span>
                 </label>
-                <select
-                  className="select select-bordered focus:select-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
-                  value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
-                >
-                  <option value="NEW">NEW</option>
-                  <option value="UPCOMING">UPCOMING</option>
-                  <option value="COMPLETED">COMPLETED</option>
-                  <option value="IN_PROGRESS">IN PROGRESS</option>
-                </select>
+                <input
+                  type="url"
+                  className="input input-bordered focus:input-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
+                  value={formData.liveUrl}
+                  onChange={(e) => setFormData({...formData, liveUrl: e.target.value})}
+                  placeholder="https://demo.example.com"
+                />
               </div>
             </div>
-
-              <div className="form-control gap-2">
-                <label className="label mb-2">
-                  <span className="label-text font-semibold text-sm">Description *</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered focus:textarea-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200 leading-relaxed"
-                  rows="3"
-                  value={formData.description}
-                  onChange={(e) => setFormData({...formData, description: e.target.value})}
-                  placeholder="Brief description of your project..."
-                  required
-                />
-              </div>
-
-              <div className="form-control gap-2">
-                <label className="label mb-2">
-                  <span className="label-text font-semibold text-sm">Features (one per line)</span>
-                </label>
-                <textarea
-                  className="textarea textarea-bordered focus:textarea-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200 leading-relaxed"
-                  rows="6"
-                  value={formData.features}
-                  onChange={(e) => setFormData({...formData, features: e.target.value})}
-                  placeholder="User authentication&#10;Product catalog&#10;Shopping cart"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-control gap-2">
-                  <label className="label mb-2">
-                    <span className="label-text font-semibold text-sm">Tags (comma-separated)</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered focus:input-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
-                    value={formData.tags}
-                    onChange={(e) => setFormData({...formData, tags: e.target.value})}
-                    placeholder="React, Node.js, PostgreSQL"
-                  />
-                </div>
-
-                <div className="form-control gap-2">
-                  <label className="label mb-2">
-                    <span className="label-text font-semibold text-sm">Technologies (comma-separated)</span>
-                  </label>
-                  <input
-                    type="text"
-                    className="input input-bordered focus:input-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
-                    value={formData.technologies}
-                    onChange={(e) => setFormData({...formData, technologies: e.target.value})}
-                    placeholder="React, Express, MongoDB"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="form-control gap-2">
-                  <label className="label mb-2">
-                    <span className="label-text font-semibold text-sm">GitHub URL</span>
-                  </label>
-                  <input
-                    type="url"
-                    className="input input-bordered focus:input-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
-                    value={formData.github}
-                    onChange={(e) => setFormData({...formData, github: e.target.value})}
-                    placeholder="https://github.com/username/repo"
-                  />
-                </div>
-
-                <div className="form-control gap-2">
-                  <label className="label mb-2">
-                    <span className="label-text font-semibold text-sm">Demo URL</span>
-                  </label>
-                  <input
-                    type="url"
-                    className="input input-bordered focus:input-primary focus:outline-none focus:ring-2 focus:ring-primary/20 bg-base-200/50 transition-all duration-200"
-                    value={formData.demo}
-                    onChange={(e) => setFormData({...formData, demo: e.target.value})}
-                    placeholder="https://demo.example.com"
-                  />
-                </div>
-              </div>
 
               <div className="form-control gap-2">
                 <label className="label mb-2">

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
-import usePortfolioStore from '../../store/usePortfolioStore';
+import React, { useState, useEffect } from 'react';
+import { portfolioAPI } from '../../api';
 import { uploadToCloudinary, getCloudinaryConfig } from '../../utils/cloudinaryUpload';
 
 function BlogManager() {
-  const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost } = usePortfolioStore();
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -17,6 +18,22 @@ function BlogManager() {
     image: '',
     readTime: '5 min read'
   });
+
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
+
+  const fetchBlogs = async () => {
+    try {
+      setLoading(true);
+      const data = await portfolioAPI.getAllBlogPosts();
+      setBlogPosts(data);
+    } catch (error) {
+      console.error('Failed to fetch blogs:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -33,22 +50,28 @@ function BlogManager() {
     setEditingId(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    const postData = {
-      ...formData,
-      tags: formData.tags.split(',').map(tag => tag.trim()),
-      date: new Date().toISOString().split('T')[0]
-    };
+    try {
+      const postData = {
+        ...formData,
+        tags: formData.tags.split(',').map(tag => tag.trim()),
+        date: new Date().toISOString().split('T')[0]
+      };
 
-    if (isEditing) {
-      updateBlogPost(editingId, postData);
-    } else {
-      addBlogPost(postData);
+      if (isEditing) {
+        await portfolioAPI.updateBlogPost(editingId, postData);
+      } else {
+        await portfolioAPI.createBlogPost(postData);
+      }
+      
+      await fetchBlogs();
+      resetForm();
+    } catch (error) {
+      console.error('Error saving blog post:', error);
+      alert('Failed to save blog post');
     }
-    
-    resetForm();
   };
 
   const handleEdit = (post) => {
@@ -67,9 +90,15 @@ function BlogManager() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
-      deleteBlogPost(id);
+      try {
+        await portfolioAPI.deleteBlogPost(id);
+        await fetchBlogs();
+      } catch (error) {
+        console.error('Error deleting blog post:', error);
+        alert('Failed to delete blog post');
+      }
     }
   };
 
@@ -104,6 +133,12 @@ function BlogManager() {
 
   return (
     <div className="space-y-6">
+      {loading ? (
+        <div className="flex justify-center items-center py-20">
+          <span className="loading loading-spinner loading-lg"></span>
+        </div>
+      ) : (
+        <>
       {/* Form */}
       <div className="card bg-base-100 shadow-xl">
         <div className="card-body">
@@ -321,6 +356,8 @@ function BlogManager() {
           )}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { portfolioAPI, authAPI } from '../api';
 
 const usePortfolioStore = create(
   persist(
@@ -51,28 +52,89 @@ const usePortfolioStore = create(
         })),
       
       // Actions for About Me
-      updateAboutMe: (data) =>
-        set((state) => ({
-          aboutMe: { ...state.aboutMe, ...data },
-        })),
+      updateAboutMe: async (data) => {
+        try {
+          const existingData = await portfolioAPI.getAboutMe();
+          let updatedData;
+          
+          if (existingData && existingData.id) {
+            // Update existing record
+            updatedData = await portfolioAPI.updateAboutMe(existingData.id, data);
+          } else {
+            // Create new record
+            updatedData = await portfolioAPI.createAboutMe(data);
+          }
+          
+          set({ aboutMe: updatedData });
+          return updatedData;
+        } catch (error) {
+          console.error('Failed to update about me:', error);
+          throw error;
+        }
+      },
+      
+      fetchAboutMe: async () => {
+        try {
+          const aboutMe = await portfolioAPI.getAboutMe();
+          if (aboutMe) {
+            set({ aboutMe });
+          }
+        } catch (error) {
+          console.error('Failed to fetch about me:', error);
+        }
+      },
       
       // Actions for Skills
-      addSkill: (skill) =>
-        set((state) => ({
-          skills: [...state.skills, { ...skill, id: Date.now() }],
-        })),
+      addSkill: async (skill) => {
+        try {
+          const newSkill = await portfolioAPI.createSkill(skill);
+          set((state) => ({
+            skills: [...state.skills, newSkill],
+          }));
+          return newSkill;
+        } catch (error) {
+          console.error('Failed to add skill:', error);
+          throw error;
+        }
+      },
       
-      updateSkill: (id, updatedSkill) =>
-        set((state) => ({
-          skills: state.skills.map((skill) =>
-            skill.id === id ? { ...skill, ...updatedSkill } : skill
-          ),
-        })),
+      updateSkill: async (id, updatedSkill) => {
+        try {
+          const updated = await portfolioAPI.updateSkill(id, updatedSkill);
+          set((state) => ({
+            skills: state.skills.map((skill) =>
+              skill.id === id ? updated : skill
+            ),
+          }));
+          return updated;
+        } catch (error) {
+          console.error('Failed to update skill:', error);
+          throw error;
+        }
+      },
       
-      deleteSkill: (id) =>
-        set((state) => ({
-          skills: state.skills.filter((skill) => skill.id !== id),
-        })),
+      deleteSkill: async (id) => {
+        try {
+          await portfolioAPI.deleteSkill(id);
+          set((state) => ({
+            skills: state.skills.filter((skill) => skill.id !== id),
+          }));
+        } catch (error) {
+          console.error('Failed to delete skill:', error);
+          throw error;
+        }
+      },
+
+      fetchSkills: async () => {
+        try {
+          const skills = await portfolioAPI.getAllSkills();
+          set({ skills });
+          return skills;
+        } catch (error) {
+          console.error('Failed to fetch skills:', error);
+          throw error;
+        }
+      },
       
       // Actions for Blog Posts
       addBlogPost: (post) =>
@@ -132,16 +194,22 @@ const usePortfolioStore = create(
         })),
       
       // Auth Actions
-      login: (email, password) => {
-        // Simple authentication check
-        if (email === 'admin@portfolio.com' && password === 'admin123') {
+      login: async (email, password) => {
+        try {
+          const response = await authAPI.login(email, password);
+          localStorage.setItem('token', response.access_token);
           set({ isAuthenticated: true });
-          return true;
+          return response;
+        } catch (error) {
+          console.error('Login failed:', error);
+          throw error;
         }
-        return false;
       },
       
-      logout: () => set({ isAuthenticated: false }),
+      logout: () => {
+        localStorage.removeItem('token');
+        set({ isAuthenticated: false });
+      },
     }),
     {
       name: 'portfolio-storage', // localStorage key

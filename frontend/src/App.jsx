@@ -6,6 +6,7 @@ import CertificationsDetails from './pages/Certifications/CertificationsDetails'
 import ProjectDetailsPage from './pages/Project/ProjectDetailsPage'
 import { Blog } from './pages/Blog/Blog'
 import AdminLogin from './pages/Admin/AdminLogin'
+import AdminRegister from './pages/Admin/AdminRegister'
 import AdminDashboard from './pages/Admin/AdminDashboard'
 import usePortfolioStore from './store/usePortfolioStore'
 
@@ -26,6 +27,8 @@ function App() {
         
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/register" element={<AdminRegister />} />
         <Route 
           path="/admin/dashboard" 
           element={

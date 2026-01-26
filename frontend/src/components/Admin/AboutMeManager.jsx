@@ -2,17 +2,26 @@ import React, { useState, useEffect } from 'react';
 import usePortfolioStore from '../../store/usePortfolioStore';
 
 function AboutMeManager() {
-  const { aboutMe, updateAboutMe } = usePortfolioStore();
+  const { aboutMe, updateAboutMe, fetchAboutMe } = usePortfolioStore();
   const [formData, setFormData] = useState(aboutMe);
+
+  useEffect(() => {
+    fetchAboutMe();
+  }, [fetchAboutMe]);
 
   useEffect(() => {
     setFormData(aboutMe);
   }, [aboutMe]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    updateAboutMe(formData);
-    alert('About Me section updated successfully!');
+    try {
+      await updateAboutMe(formData);
+      alert('About Me section updated successfully!');
+    } catch (error) {
+      console.error('Error updating about me:', error);
+      alert('Failed to update About Me section. Please try again.');
+    }
   };
 
   return (

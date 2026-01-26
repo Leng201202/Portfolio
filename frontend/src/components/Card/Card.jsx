@@ -22,13 +22,11 @@ function Card({ project }) {
         <div className="card-body">
             <h2 className="card-title group-hover:text-primary transition-colors">
               {project.title}
-              {project.status === "NEW" && <div className="badge badge-secondary">NEW</div>}
-              {project.status === "UPCOMING" && <div className="badge badge-info">UPCOMING</div>}
             </h2>
             <p className="text-base-content/70 line-clamp-2">{project.description}</p>
             <div className="card-actions justify-end mt-2">
-              {project.tags?.map((tag, idx) => (
-                <div key={idx} className="badge badge-outline">{tag}</div>
+              {project.technologies?.map((tech, idx) => (
+                <div key={idx} className="badge badge-outline">{tech}</div>
               ))}
             </div>
         </div>

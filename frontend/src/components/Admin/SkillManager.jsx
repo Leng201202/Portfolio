@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import usePortfolioStore from '../../store/usePortfolioStore';
 
 function SkillManager() {
-  const { skills, addSkill, updateSkill, deleteSkill } = usePortfolioStore();
+  const { skills, addSkill, updateSkill, deleteSkill, fetchSkills } = usePortfolioStore();
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
@@ -11,6 +11,10 @@ function SkillManager() {
     level: 'Intermediate',
     icon: ''
   });
+
+  useEffect(() => {
+    fetchSkills();
+  }, [fetchSkills]);
 
   const resetForm = () => {
     setFormData({
@@ -23,22 +27,27 @@ function SkillManager() {
     setEditingId(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (isEditing) {
-      updateSkill(editingId, formData);
-    } else {
-      addSkill(formData);
+    try {
+      if (isEditing) {
+        await updateSkill(editingId, formData);
+      } else {
+        await addSkill(formData);
+      }
+      
+      resetForm();
+    } catch (error) {
+      console.error('Error saving skill:', error);
+      alert('Failed to save skill. Please try again.');
     }
-    
-    resetForm();
   };
 
   const handleEdit = (skill) => {
     setFormData({
       name: skill.name,
-      category: skill.category,
+      category: skill.category?.name || skill.category,
       level: skill.level,
       icon: skill.icon || ''
     });
@@ -46,9 +55,14 @@ function SkillManager() {
     setIsEditing(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this skill?')) {
-      deleteSkill(id);
+      try {
+        await deleteSkill(id);
+      } catch (error) {
+        console.error('Error deleting skill:', error);
+        alert('Failed to delete skill. Please try again.');
+      }
     }
   };
 
@@ -162,7 +176,7 @@ function SkillManager() {
                           <h3 className="font-bold">{skill.name}</h3>
                         </div>
                         <div className="flex gap-2 mt-2">
-                          <span className="badge badge-sm badge-primary">{skill.category}</span>
+                          <span className="badge badge-sm badge-primary">{skill.category?.name || skill.category}</span>
                           <span className="badge badge-sm badge-outline">{skill.level}</span>
                         </div>
                       </div>
