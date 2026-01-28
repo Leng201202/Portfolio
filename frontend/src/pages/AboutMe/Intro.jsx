@@ -3,12 +3,15 @@ import usePortfolioStore from '../../store/usePortfolioStore';
 
 function Intro({ profileData }) {
   const introData = usePortfolioStore((state) => state.introSection);
+  const aboutMe = usePortfolioStore((state) => state.aboutMe);
   const fetchIntroSection = usePortfolioStore((state) => state.fetchIntroSection);
+  const fetchAboutMe = usePortfolioStore((state) => state.fetchAboutMe);
 
   // Fetch data from backend on mount
   useEffect(() => {
     fetchIntroSection();
-  }, [fetchIntroSection]);
+    fetchAboutMe();
+  }, [fetchIntroSection, fetchAboutMe]);
 
   // Use Zustand data directly
   const profile = {
@@ -23,9 +26,9 @@ function Intro({ profileData }) {
     ctaLink: introData.ctaLink || "",
     resumeUrl: introData.resumeUrl || "",
     socialLinks: {
-      github: "",
-      linkedin: "",
-      twitter: ""
+      github: aboutMe.github || "",
+      linkedin: aboutMe.linkedin || "",
+      twitter: aboutMe.twitter || "",
     }
   };
 
