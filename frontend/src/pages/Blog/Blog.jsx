@@ -24,57 +24,142 @@ export const Blog = () => {
     }
   };
   
-  // Helper function to format plain text content into paragraphs
+  // Basic markdown-ish renderer to support headings, lists, code blocks, and inline code
   const formatContent = (text) => {
-    if (!text) return '';
-    
-    // Split by double line breaks for paragraphs
-    const paragraphs = text.trim().split('\n\n');
-    
-    return paragraphs.map((para, index) => {
-      const trimmedPara = para.trim();
-      
-      // Check if it's a heading (starts with #)
-      if (trimmedPara.startsWith('### ')) {
-        return <h3 key={index} className="text-2xl font-bold mt-6 mb-3">{trimmedPara.substring(4)}</h3>;
-      } else if (trimmedPara.startsWith('## ')) {
-        return <h2 key={index} className="text-3xl font-bold mt-8 mb-4">{trimmedPara.substring(3)}</h2>;
-      } else if (trimmedPara.startsWith('# ')) {
-        return <h1 key={index} className="text-4xl font-bold mt-8 mb-4">{trimmedPara.substring(2)}</h1>;
+    if (!text) return null;
+
+    const renderInline = (value) => {
+      if (!value) return null;
+      const parts = value.split(/(`[^`]+`)/g);
+      return parts.map((part, idx) => {
+        if (part.startsWith('`') && part.endsWith('`')) {
+          return <code key={idx} className="px-1 py-0.5 rounded bg-base-200 text-sm">{part.slice(1, -1)}</code>;
+        }
+        return <React.Fragment key={idx}>{part}</React.Fragment>;
+      });
+    };
+
+    const lines = text.split('\n');
+    const elements = [];
+    let paragraph = [];
+    let list = [];
+    let inCode = false;
+    let codeLines = [];
+
+    const flushParagraph = () => {
+      if (!paragraph.length) return;
+      elements.push(
+        <p key={`p-${elements.length}`} className="mb-4 leading-relaxed">
+          {renderInline(paragraph.join(' '))}
+        </p>
+      );
+      paragraph = [];
+    };
+
+    const flushList = () => {
+      if (!list.length) return;
+      elements.push(
+        <ul key={`ul-${elements.length}`} className="list-disc list-inside my-4 space-y-2">
+          {list.map((item, i) => (
+            <li key={i}>{renderInline(item)}</li>
+          ))}
+        </ul>
+      );
+      list = [];
+    };
+
+    const flushCode = () => {
+      elements.push(
+        <pre key={`code-${elements.length}`} className="bg-base-200 p-4 rounded-lg overflow-x-auto my-4">
+          <code className="text-sm whitespace-pre-wrap">{codeLines.join('\n')}</code>
+        </pre>
+      );
+      codeLines = [];
+    };
+
+    for (let i = 0; i <= lines.length; i++) {
+      const line = lines[i] ?? '';
+      const trimmed = line.trim();
+
+      if (inCode) {
+        if (trimmed.startsWith('```')) {
+          flushCode();
+          inCode = false;
+        } else {
+          codeLines.push(line);
+        }
+        continue;
       }
-      // Check if it's a code block (starts and ends with ```)
-      else if (trimmedPara.startsWith('```') && trimmedPara.endsWith('```')) {
-        const code = trimmedPara.slice(3, -3).trim();
-        return (
-          <pre key={index} className="bg-base-200 p-4 rounded-lg overflow-x-auto my-4">
-            <code className="text-sm">{code}</code>
+
+      if (trimmed.startsWith('```')) {
+        flushParagraph();
+        flushList();
+        inCode = true;
+        continue;
+      }
+
+      if (!trimmed) {
+        flushParagraph();
+        flushList();
+        continue;
+      }
+
+      // Single-line code wrapped in backticks becomes a code block
+      if (trimmed.startsWith('`') && trimmed.endsWith('`') && trimmed.length > 2) {
+        flushParagraph();
+        flushList();
+        elements.push(
+          <pre key={`code-inline-${elements.length}`} className="bg-base-200 p-4 rounded-lg overflow-x-auto my-4">
+            <code className="text-sm whitespace-pre-wrap">{trimmed.slice(1, -1)}</code>
           </pre>
         );
+        continue;
       }
-      // Check if it's a list item (starts with - or *)
-      else if (trimmedPara.includes('\n-') || trimmedPara.includes('\n*') || trimmedPara.startsWith('-') || trimmedPara.startsWith('*')) {
-        const items = trimmedPara.split('\n').filter(line => line.trim().startsWith('-') || line.trim().startsWith('*'));
-        return (
-          <ul key={index} className="list-disc list-inside my-4 space-y-2">
-            {items.map((item, i) => (
-              <li key={i}>{item.trim().substring(1).trim()}</li>
-            ))}
-          </ul>
-        );
+
+      const headingMatch = trimmed.match(/^(#{1,3})\s?(.*)$/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const content = headingMatch[2];
+        flushParagraph();
+        flushList();
+        if (level === 3) {
+          elements.push(
+            <h3 key={`h3-${elements.length}`} className="text-2xl font-bold mt-6 mb-3">
+              {renderInline(content)}
+            </h3>
+          );
+        } else if (level === 2) {
+          elements.push(
+            <h2 key={`h2-${elements.length}`} className="text-3xl font-bold mt-8 mb-4">
+              {renderInline(content)}
+            </h2>
+          );
+        } else {
+          elements.push(
+            <h1 key={`h1-${elements.length}`} className="text-4xl font-bold mt-8 mb-4">
+              {renderInline(content)}
+            </h1>
+          );
+        }
+        continue;
       }
-      // Regular paragraph
-      else {
-        return <p key={index} className="mb-4 leading-relaxed">{trimmedPara}</p>;
+
+      if (/^[-*]\s?/.test(trimmed)) {
+        flushParagraph();
+        list.push(trimmed.replace(/^[-*]\s?/, ''));
+        continue;
       }
-    });
+
+      paragraph.push(trimmed);
+    }
+
+    return elements;
   };
 
   const [selectedPost, setSelectedPost] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 6;
-
-  // Get unique categories
   const categories = ["All", ...new Set(blogPosts.map(post => post.category).filter(Boolean))];
 
   // Filter posts by category
