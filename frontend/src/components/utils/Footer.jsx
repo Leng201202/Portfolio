@@ -1,10 +1,21 @@
 import React from 'react'
 
+const scrollToSection = (event, id) => {
+    event.preventDefault()
+    const section = document.getElementById(id)
+    if (!section) return
+    section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 function Footer() {
-    return (
-        <div>
-                <footer className="footer footer-center sm:footer bg-base-200 text-base-content p-6 sm:p-10">
-                        <aside className="items-center sm:items-start">
+        return (
+                <div>
+                                <footer className="footer footer-center sm:footer bg-base-200 text-base-content p-6 sm:p-10">
+                                                <aside className="items-center sm:items-start">
                 <svg
                 width="40"
                 height="40"
@@ -24,24 +35,24 @@ function Footer() {
             </aside>
             <nav>
                 <h6 className="footer-title">Projects</h6>
-                <a className="link link-hover" href="#projects">Featured Work</a>
-                <a className="link link-hover" href="#case-studies">Case Studies</a>
-                <a className="link link-hover" href="#open-source">Open Source</a>
-                <a className="link link-hover" href="#testimonials">Testimonials</a>
+                <a className="link link-hover" href="#projects" onClick={(e) => scrollToSection(e, 'projects')}>Featured Work</a>
+                <a className="link link-hover" href="#projects" onClick={(e) => scrollToSection(e, 'projects')}>Case Studies</a>
+                <a className="link link-hover" href="#projects" onClick={(e) => scrollToSection(e, 'projects')}>Open Source</a>
+                <a className="link link-hover" href="#projects" onClick={(e) => scrollToSection(e, 'projects')}>Testimonials</a>
             </nav>
             <nav>
                 <h6 className="footer-title">About</h6>
-                <a className="link link-hover" onClick={() => scrollToSection('me')}>About Me</a>
-                <a className="link link-hover" >Skills</a>
-                <a className="link link-hover" onClick={()=>scrollToSection('/')}>Resume</a>
-                <a className="link link-hover" href="#contact">Contact</a>
+                <a className="link link-hover" href="#me" onClick={(e) => scrollToSection(e, 'me')}>About Me</a>
+                <a className="link link-hover" href="#me" onClick={(e) => scrollToSection(e, 'me')}>Skills</a>
+                <a className="link link-hover" href="#me" onClick={(e) => scrollToSection(e, 'me')}>Resume</a>
+                <a className="link link-hover" href="#me" onClick={(e) => scrollToSection(e, 'me')}>Contact</a>
             </nav>
             <nav>
                 <h6 className="footer-title">Social</h6>
-                <a className="link link-hover" href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
-                <a className="link link-hover" href="https://www.linkedin.com/" target="_blank" rel="noreferrer">LinkedIn</a>
-                <a className="link link-hover" href="https://x.com/" target="_blank" rel="noreferrer">X (Twitter)</a>
-                <a className="link link-hover" href="mailto:you@example.com">Email</a>
+                <a className="link link-hover" target="_blank" rel="noreferrer" onClick={scrollToTop}>GitHub</a>
+                <a className="link link-hover" target="_blank" rel="noreferrer" onClick={scrollToTop}>LinkedIn</a>
+                <a className="link link-hover" target="_blank" rel="noreferrer" onClick={scrollToTop}>X (Twitter)</a>
+                <a className="link link-hover" href="mailto:saishanghlang20122002@gmail.com" onClick={scrollToTop}>Email</a>
             </nav>
         </footer>
     </div>
