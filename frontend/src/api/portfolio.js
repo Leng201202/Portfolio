@@ -23,6 +23,19 @@ const getHeaders = (includeAuth = false) => {
 
 // Portfolio API calls
 export const portfolioAPI = {
+  // Home Data Aggregation
+  getHomeData: async () => {
+    const response = await fetch(`${API_BASE_URL}/portfolio/home`, {
+      headers: getHeaders(),
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch home data');
+    }
+    
+    return response.json();
+  },
+
   // Profile Data
   getProfileData: async () => {
     const response = await fetch(`${API_BASE_URL}/portfolio/profile`, {

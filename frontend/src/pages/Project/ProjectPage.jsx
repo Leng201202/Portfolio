@@ -2,13 +2,18 @@ import React, { useEffect, useState } from 'react'
 import CardContainer from '../../components/Card/CardContainer'
 import { portfolioAPI } from '../../api'
 
-function ProjectPage() {
+function ProjectPage({ projectsData }) {
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!projectsData);
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (projectsData) {
+      setProjects(projectsData);
+      setLoading(false);
+    } else {
+      fetchProjects();
+    }
+  }, [projectsData]);
 
   const fetchProjects = async () => {
     try {

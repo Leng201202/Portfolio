@@ -7,8 +7,10 @@ function CertificationPage({ certificationsData }) {
   const [certifications, setCertifications] = useState([]);
 
   useEffect(() => {
-    fetchCertifications();
-  }, []);
+    if (!certificationsData) {
+      fetchCertifications();
+    }
+  }, [certificationsData]);
 
   const fetchCertifications = async () => {
     try {

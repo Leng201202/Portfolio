@@ -1,29 +1,35 @@
 import React, { useEffect, useState } from 'react'
 import { portfolioAPI } from '../../api'
 
-function Skill() {
+function Skill({ skillsData }) {
   const [skills, setSkills] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!skillsData);
 
   useEffect(() => {
-    fetchSkills();
-  }, []);
+    if (skillsData) {
+      processSkillsData(skillsData);
+      setLoading(false);
+    } else {
+      fetchSkills();
+    }
+  }, [skillsData]);
+
+  const processSkillsData = (data) => {
+    const groupedSkills = {};
+    data.forEach(skill => {
+      const categoryName = skill.category?.name || 'Other';
+      if (!groupedSkills[categoryName]) {
+        groupedSkills[categoryName] = [];
+      }
+      groupedSkills[categoryName].push(skill.name);
+    });
+    setSkills(groupedSkills);
+  };
 
   const fetchSkills = async () => {
     try {
       const data = await portfolioAPI.getAllSkills();
-      
-      // Group skills by category
-      const groupedSkills = {};
-      data.forEach(skill => {
-        const categoryName = skill.category?.name || 'Other';
-        if (!groupedSkills[categoryName]) {
-          groupedSkills[categoryName] = [];
-        }
-        groupedSkills[categoryName].push(skill.name);
-      });
-      
-      setSkills(groupedSkills);
+      processSkillsData(data);
     } catch (error) {
       console.error('Error fetching skills:', error);
     } finally {

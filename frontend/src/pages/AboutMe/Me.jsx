@@ -14,9 +14,9 @@ function Me({
   const [education, setEducation] = useState([]);
   
   useEffect(() => {
-    fetchAboutMe();
-    fetchEducation();
-  }, [fetchAboutMe]);
+    if (!aboutMeData) fetchAboutMe();
+    if (!educationData) fetchEducation();
+  }, [fetchAboutMe, aboutMeData, educationData]);
 
   const fetchEducation = async () => {
     try {

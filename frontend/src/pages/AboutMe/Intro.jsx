@@ -1,33 +1,36 @@
 import React, { useEffect } from 'react';
 import usePortfolioStore from '../../store/usePortfolioStore';
 
-function Intro({ profileData }) {
-  const introData = usePortfolioStore((state) => state.introSection);
-  const aboutMe = usePortfolioStore((state) => state.aboutMe);
+function Intro({ profileData, aboutMeData }) {
+  const introDataStore = usePortfolioStore((state) => state.introSection);
+  const aboutMeStore = usePortfolioStore((state) => state.aboutMe);
   const fetchIntroSection = usePortfolioStore((state) => state.fetchIntroSection);
   const fetchAboutMe = usePortfolioStore((state) => state.fetchAboutMe);
 
-  // Fetch data from backend on mount
+  // Fetch data from backend on mount only if props are missing
   useEffect(() => {
-    fetchIntroSection();
-    fetchAboutMe();
-  }, [fetchIntroSection, fetchAboutMe]);
+    if (!profileData) fetchIntroSection();
+    if (!aboutMeData) fetchAboutMe();
+  }, [fetchIntroSection, fetchAboutMe, profileData, aboutMeData]);
 
-  // Use Zustand data directly
+  // Use props if available, otherwise fallback to Zustand store
+  const introData = profileData || introDataStore;
+  const aboutMe = aboutMeData || aboutMeStore;
+
   const profile = {
     greeting: introData.greeting || "Hello, I'm",
     name: introData.name || "",
-    title: introData.tagline || "",
+    title: introData.title || introData.tagline || "", // fallback mapping
     description: introData.description || "",
-    image: introData.profileImage || "",
+    image: introData.image || introData.profileImage || "",
     imageAlt: "Profile",
     availableForWork: introData.availableForWork || false,
     ctaText: introData.ctaText || "Contact Me",
     ctaLink: introData.ctaLink || "",
     resumeUrl: introData.resumeUrl || "",
     socialLinks: {
-      github: aboutMe.github || "",
-      linkedin: aboutMe.linkedin || "",
+      github: introData.githubUrl || aboutMe.github || "",
+      linkedin: introData.linkedinUrl || aboutMe.linkedin || "",
       twitter: aboutMe.twitter || "",
     }
   };
