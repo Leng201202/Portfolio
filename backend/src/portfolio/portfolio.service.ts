@@ -4,6 +4,28 @@ import { PrismaService } from '../database/prisma.service.js';
 @Injectable()
 export class PortfolioService {
   constructor(private prisma: PrismaService) {}
+
+  // Home Data Aggregation
+  async getHomeData() {
+    const [profile, about, education, skills, projects, certifications] = await Promise.all([
+      this.getProfileData(),
+      this.getAboutMe(),
+      this.getAllEducation(),
+      this.getAllSkills(),
+      this.getAllProjects(),
+      this.getAllCertifications(),
+    ]);
+
+    return {
+      profile,
+      about,
+      education,
+      skills,
+      projects,
+      certifications,
+    };
+  }
+
   // Profile Data
   async getProfileData() {
     return this.prisma.profileData.findFirst({

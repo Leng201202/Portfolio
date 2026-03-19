@@ -17,6 +17,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard.js';
 export class PortfolioController {
   constructor(private portfolioService: PortfolioService) {}
 
+  // Home Data Aggregation (Public)
+  @Get('home')
+  async getHomeData() {
+    return this.portfolioService.getHomeData();
+  }
+
   // Profile Data (Public for GET, Protected for POST/PUT)
   @Get('profile')
   async getProfileData() {
