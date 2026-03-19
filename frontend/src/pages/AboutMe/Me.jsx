@@ -28,12 +28,14 @@ function Me({
   };
 
   // Use backend data
-  const aboutMe = aboutMeData || (storeAboutMe?.title ? {
-    title: storeAboutMe.title || "About Me",
-    introduction: storeAboutMe.description || "",
-    paragraphs: storeAboutMe.bio ? storeAboutMe.bio.split('\n\n').filter(p => p.trim()) : [],
+  const sourceData = aboutMeData || storeAboutMe;
+  
+  const aboutMe = sourceData?.title ? {
+    title: sourceData.title || "About Me",
+    introduction: sourceData.description || "",
+    paragraphs: sourceData.bio ? String(sourceData.bio).split('\n\n').filter(p => p.trim()) : [],
     highlights: []
-  } : null);
+  } : null;
   
   const educationList = educationData || education;
   const title = sectionTitle || "About Me & Education";
